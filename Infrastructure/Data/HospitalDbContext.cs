@@ -37,6 +37,10 @@ public class HospitalDbContext : DbContext
                 .HasMaxLength(8) // Uruguay.
                 .IsRequired();
 
+            entity.Property(p => p.PasswordHash)
+                .HasMaxLength(100)
+                .IsRequired();
+
             entity.Property(p => p.Role)
                 .HasMaxLength(20)
                 .IsRequired();
@@ -63,6 +67,10 @@ public class HospitalDbContext : DbContext
 
             entity.Property(m => m.Document)
                 .HasMaxLength(8) // Uruguay.
+                .IsRequired();
+
+            entity.Property(m => m.PasswordHash)
+                .HasMaxLength(100)
                 .IsRequired();
 
             entity.Property(m => m.Role)
