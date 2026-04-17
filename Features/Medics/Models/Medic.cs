@@ -18,6 +18,8 @@ public class Medic
     public required string Document { get; set; }
     public string Role { get; set; } = "Medic";
 
+    public bool IsActive { get; set; } = true;
+
     public string Specialty { get; set; } = MedicSpecialties.NoSpecialty;
 
     public List<Ticket> Tickets { get; set; } = [];

@@ -37,6 +37,14 @@ public class HospitalDbContext : DbContext
                 .HasMaxLength(8) // Uruguay.
                 .IsRequired();
 
+            entity.Property(p => p.Role)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(p => p.IsActive)
+                .HasDefaultValue(true)
+                .IsRequired();
+
             entity.Ignore(p => p.FullName);
         });
 
@@ -59,6 +67,10 @@ public class HospitalDbContext : DbContext
 
             entity.Property(m => m.Role)
                 .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(m => m.IsActive)
+                .HasDefaultValue(true)
                 .IsRequired();
 
             entity.Property(m => m.Specialty)
@@ -94,7 +106,4 @@ public class HospitalDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
-
 }
-
-
