@@ -17,6 +17,10 @@ public class CreateMedicDto
     public string Document { get; set; } = string.Empty;
 
     [Required]
+    [StringLength(100, MinimumLength = 20)]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
     [StringLength(50)]
     public string Specialty { get; set; } = string.Empty;
 }
