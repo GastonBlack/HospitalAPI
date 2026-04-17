@@ -1,6 +1,7 @@
 using HospitalAPI.Features.Medics.DTOs;
 using HospitalAPI.Features.Medics.IServices;
 using HospitalAPI.Features.Medics.Models;
+using HospitalAPI.Features.Medics.Constants;
 using HospitalAPI.Infrastructure.Data;
 using HospitalAPI.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,11 @@ public class MedicService : IMedicService
     private async Task<bool> MedicExistsByDocumentAsync(string document)
     {
         return await _db.Medics.AnyAsync(m => m.Document == document);
+    }
+
+    private static bool IsValidSpecialty(string specialty)
+    {
+        return MedicSpecialties.All.Contains(specialty);
     }
 
     private static ResponseMedicDto MapToResponseMedicDto(Medic medic)
@@ -104,6 +110,9 @@ public class MedicService : IMedicService
         var normalizedDocument = dto.Document.Trim();
         var normalizedSpecialty = dto.Specialty.Trim();
 
+        if (!IsValidSpecialty(normalizedSpecialty))
+            throw new BadRequestException("La especialidad no es valida.");
+
         if (await MedicExistsByDocumentAsync(normalizedDocument))
             throw new ConflictException("Un medico con ese documento ya existe.");
 
@@ -141,6 +150,9 @@ public class MedicService : IMedicService
         var normalizedLastName = dto.LastName.Trim().ToLower();
         var normalizedDocument = dto.Document.Trim();
         var normalizedSpecialty = dto.Specialty.Trim();
+
+        if (!IsValidSpecialty(normalizedSpecialty))
+            throw new BadRequestException("La especialidad no es valida.");
 
         bool samePassword = BCrypt.Net.BCrypt.Verify(dto.Password, medic.PasswordHash);
 

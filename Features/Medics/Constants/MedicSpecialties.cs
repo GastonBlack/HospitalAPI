@@ -2,6 +2,27 @@ namespace HospitalAPI.Features.Medics.Constants;
 
 public static class MedicSpecialties
 {
+    public static readonly string[] All =
+    [
+        NoSpecialty,
+        GeneralMedicine,
+        Cardiologist,
+        Dermatologist,
+        Pediatrician,
+        Neurologist,
+        Surgeon,
+        Oncologist,
+        Orthopedist,
+        Ophthalmologist,
+        Otorhinolaryngologist,
+        Psychiatrist,
+        Nephrologist,
+        Hepatologist,
+        Anesthesiologist,
+        Traumatologist,
+        Gynecologist
+    ];
+
     public const string NoSpecialty = "No Specialty";
 
     public const string GeneralMedicine = "General Medicine";

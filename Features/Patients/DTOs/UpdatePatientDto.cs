@@ -14,6 +14,7 @@ public class UpdatePatientDto
 
     [Required]
     [StringLength(8, MinimumLength = 7)]
+    [RegularExpression(@"^\d+$", ErrorMessage = "El documento solo puede contener numeros.")]
     public string Document { get; set; } = string.Empty;
 
     [Required]
