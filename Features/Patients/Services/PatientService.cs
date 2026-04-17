@@ -2,6 +2,7 @@ using HospitalAPI.Features.Patients.DTOs;
 using HospitalAPI.Features.Patients.IServices;
 using HospitalAPI.Features.Patients.Models;
 using HospitalAPI.Infrastructure.Data;
+using HospitalAPI.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -73,7 +74,7 @@ public class PatientService : IPatientService
         var patient = await _db.Patients
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
-        if (patient == null) throw new InvalidOperationException("Usuario no encontrado.");
+        if (patient == null) throw new NotFoundException("Usuario no encontrado.");
 
         return new GetPatientDto
         {
@@ -92,14 +93,14 @@ public class PatientService : IPatientService
     // //////////////////////////////////////////
     public async Task<ResponsePatientDto> CreateAsync(CreatePatientDto dto)
     {
-        if (dto == null) throw new InvalidOperationException("Datos invalidos.");
+        if (dto == null) throw new BadRequestException("Datos invalidos.");
 
         var normalizedName = dto.Name.Trim().ToLower();
         var normalizedLastName = dto.LastName.Trim().ToLower();
         var normalizedDocument = dto.Document.Trim();
 
         if (await PatientExistsByDocumentAsync(normalizedDocument))
-            throw new InvalidOperationException("Un usuario con ese documento ya existe.");
+            throw new ConflictException("Un usuario con ese documento ya existe.");
 
         Patient newPatient = new()
         {
@@ -117,7 +118,7 @@ public class PatientService : IPatientService
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
-            throw new InvalidOperationException("Un usuario con ese documento ya existe.");
+            throw new ConflictException("Un usuario con ese documento ya existe.");
         }
 
         return MapToResponsePatientDto(newPatient);
@@ -126,10 +127,10 @@ public class PatientService : IPatientService
 
     public async Task<ResponsePatientDto?> UpdateAsync(int id, UpdatePatientDto dto)
     {
-        if (dto == null) throw new InvalidOperationException("Datos invalidos.");
+        if (dto == null) throw new BadRequestException("Datos invalidos.");
 
         Patient patient = await _db.Patients.FindAsync(id)
-            ?? throw new InvalidOperationException("El usuario no existe.");
+            ?? throw new NotFoundException("El usuario no existe.");
 
         var normalizedName = dto.Name.Trim().ToLower();
         var normalizedLastName = dto.LastName.Trim().ToLower();
@@ -144,13 +145,13 @@ public class PatientService : IPatientService
             samePassword;
 
         if (sameData)
-            throw new InvalidOperationException("Ingrese datos diferentes a los actuales.");
+            throw new BadRequestException("Ingrese datos diferentes a los actuales.");
 
         bool documentInUse = await _db.Patients
             .AnyAsync(p => p.Document == normalizedDocument && p.Id != id);
 
         if (documentInUse)
-            throw new InvalidOperationException("Un usuario con ese documento ya existe.");
+            throw new ConflictException("Un usuario con ese documento ya existe.");
 
         patient.Name = normalizedName;
         patient.LastName = normalizedLastName;
@@ -163,7 +164,7 @@ public class PatientService : IPatientService
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
-            throw new InvalidOperationException("Un usuario con ese documento ya existe.");
+            throw new ConflictException("Un usuario con ese documento ya existe.");
         }
 
         return MapToResponsePatientDto(patient);
@@ -172,7 +173,7 @@ public class PatientService : IPatientService
 
     public async Task<bool> ChangeActiveStatusAsync(int id, DisablePatientDto dto)
     {
-        if (dto == null) throw new InvalidOperationException("Datos invalidos.");
+        if (dto == null) throw new BadRequestException("Datos invalidos.");
 
         int affectedRows = await _db.Patients
             .Where(p => p.Id == id)
@@ -180,7 +181,7 @@ public class PatientService : IPatientService
                 .SetProperty(p => p.IsActive, dto.IsActive));
 
         if (affectedRows == 0)
-            throw new InvalidOperationException("El usuario no existe.");
+            throw new NotFoundException("El usuario no existe.");
 
         return true;
     }
