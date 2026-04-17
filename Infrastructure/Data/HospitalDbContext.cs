@@ -49,6 +49,9 @@ public class HospitalDbContext : DbContext
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            entity.HasIndex(p => p.Document)
+                .IsUnique();
+
             entity.Ignore(p => p.FullName);
         });
 
@@ -80,6 +83,9 @@ public class HospitalDbContext : DbContext
             entity.Property(m => m.IsActive)
                 .HasDefaultValue(true)
                 .IsRequired();
+
+            entity.HasIndex(p => p.Document)
+                .IsUnique();
 
             entity.Property(m => m.Specialty)
                 .HasMaxLength(50)
