@@ -1,3 +1,5 @@
+using HospitalAPI.Features.Medics.IServices;
+using HospitalAPI.Features.Medics.Services;
 using HospitalAPI.Features.Patients.IServices;
 using HospitalAPI.Features.Patients.Services;
 using HospitalAPI.Infrastructure.Data;
@@ -11,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // //////////////////////////////////////////
 builder.Services.AddOpenApi();
 builder.Services.AddControllersWithViews();
+builder.Services.AddSwaggerGen();
 
 // //////////////////////////////////////////
 // Database
@@ -21,6 +24,7 @@ builder.Services.AddDbContext<HospitalDbContext>(options =>
 // //////////////////////////////////////////
 // Application services
 // //////////////////////////////////////////
+builder.Services.AddScoped<IMedicService, MedicService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
 var app = builder.Build();
@@ -31,6 +35,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // //////////////////////////////////////////
