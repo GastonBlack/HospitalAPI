@@ -38,7 +38,6 @@ public class HospitalDbContext : DbContext
                 .IsRequired();
 
             entity.Property(p => p.PasswordHash)
-                .HasMaxLength(100)
                 .IsRequired();
 
             entity.Property(p => p.Role)
@@ -73,7 +72,6 @@ public class HospitalDbContext : DbContext
                 .IsRequired();
 
             entity.Property(m => m.PasswordHash)
-                .HasMaxLength(100)
                 .IsRequired();
 
             entity.Property(m => m.Role)

@@ -17,6 +17,6 @@ public class UpdatePatientDto
     public string Document { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(100, MinimumLength = 20)]
+    [StringLength(20, MinimumLength = 6)]
     public string Password { get; set; } = string.Empty;
 }
