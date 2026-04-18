@@ -2,6 +2,8 @@ using HospitalAPI.Features.Medics.IServices;
 using HospitalAPI.Features.Medics.Services;
 using HospitalAPI.Features.Patients.IServices;
 using HospitalAPI.Features.Patients.Services;
+using HospitalAPI.Features.Tickets.IServices;
+using HospitalAPI.Features.Tickets.Services;
 using HospitalAPI.Infrastructure.Data;
 using HospitalAPI.Infrastructure.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,7 @@ builder.Services.AddDbContext<HospitalDbContext>(options =>
 // //////////////////////////////////////////
 builder.Services.AddScoped<IMedicService, MedicService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 
