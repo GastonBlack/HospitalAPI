@@ -15,3 +15,6 @@ public class NotFoundException(string message)
 
 public class BadRequestException(string message)
     : CustomHttpException(message, StatusCodes.Status400BadRequest);
+
+public class UnauthorizedException(string message)
+    : CustomHttpException(message, StatusCodes.Status401Unauthorized);
