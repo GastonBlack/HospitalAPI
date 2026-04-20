@@ -4,6 +4,7 @@ namespace HospitalAPI.Features.Medics.IServices;
 
 public interface IMedicService
 {
+    Task<List<PublicMedicDto>> GetAvailableForTicketsAsync();
     Task<List<GetMedicDto>> GetAllAsync();
     Task<GetMedicDto?> GetByIdAsync(int id);
     Task<ResponseMedicDto> CreateAsync(CreateMedicDto dto);

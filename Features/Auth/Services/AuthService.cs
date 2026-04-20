@@ -30,6 +30,33 @@ public class AuthService : IAuthService
 
         var normalizedDocument = dto.Document.Trim();
 
+        var admin = await _db.Admins
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Document == normalizedDocument && a.IsActive);
+
+        if (admin != null)
+        {
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, admin.PasswordHash))
+                throw new UnauthorizedException("Documento o contrasena invalidos.");
+
+            var currentUser = new CurrentUserDto
+            {
+                Id = admin.Id,
+                Document = admin.Document,
+                Role = admin.Role,
+                FullName = admin.FullName
+            };
+
+            var tokenResult = _jwtTokenGenerator.GenerateToken(currentUser);
+
+            return new LoginResultDto
+            {
+                Token = tokenResult.Token,
+                User = currentUser,
+                ExpiresAtUtc = tokenResult.ExpiresAtUtc
+            };
+        }
+
         var patient = await _db.Patients
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Document == normalizedDocument && p.IsActive);

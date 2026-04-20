@@ -1,5 +1,6 @@
 using HospitalAPI.Features.Medics.Constants;
 using HospitalAPI.Features.Tickets.Models;
+using HospitalAPI.Infrastructure.Auth;
 
 namespace HospitalAPI.Features.Medics.Models;
 
@@ -13,7 +14,7 @@ public class Medic
 
     public required string Document { get; set; }
     public required string PasswordHash { get; set; }
-    public string Role { get; set; } = "Medic";
+    public string Role { get; set; } = AuthRoles.Medic;
 
     public bool IsActive { get; set; } = true;
 

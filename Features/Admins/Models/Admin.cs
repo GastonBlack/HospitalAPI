@@ -1,9 +1,8 @@
-using HospitalAPI.Features.Tickets.Models;
 using HospitalAPI.Infrastructure.Auth;
 
-namespace HospitalAPI.Features.Patients.Models;
+namespace HospitalAPI.Features.Admins.Models;
 
-public class Patient
+public class Admin
 {
     public int Id { get; set; }
 
@@ -13,9 +12,7 @@ public class Patient
 
     public required string Document { get; set; }
     public required string PasswordHash { get; set; }
-    public string Role { get; set; } = AuthRoles.Patient;
+    public string Role { get; set; } = AuthRoles.Admin;
 
     public bool IsActive { get; set; } = true;
-
-    public List<Ticket> Tickets { get; set; } = [];
 }

@@ -23,9 +23,13 @@ public class MedicService : IMedicService
     // //////////////////////////////////////////
     // Validations.
     // //////////////////////////////////////////
-    private async Task<bool> MedicExistsByDocumentAsync(string document)
+    private async Task<bool> DocumentAlreadyExistsAsync(string document, int? excludedMedicId = null)
     {
-        return await _db.Medics.AnyAsync(m => m.Document == document);
+        return await _db.Medics.AnyAsync(m =>
+                   m.Document == document &&
+                   (!excludedMedicId.HasValue || m.Id != excludedMedicId.Value)) ||
+               await _db.Admins.AnyAsync(a => a.Document == document) ||
+               await _db.Patients.AnyAsync(p => p.Document == document);
     }
 
     private static bool IsValidSpecialty(string specialty)
@@ -57,6 +61,22 @@ public class MedicService : IMedicService
     // //////////////////////////////////////////
     // Getters
     // //////////////////////////////////////////
+    public async Task<List<PublicMedicDto>> GetAvailableForTicketsAsync()
+    {
+        return await _db.Medics
+            .AsNoTracking()
+            .OrderBy(m => m.Name)
+            .ThenBy(m => m.LastName)
+            .Where(m => m.IsActive)
+            .Select(m => new PublicMedicDto
+            {
+                Id = m.Id,
+                FullName = m.Name + " " + m.LastName,
+                Specialty = m.Specialty
+            })
+            .ToListAsync();
+    }
+
     public async Task<List<GetMedicDto>> GetAllAsync()
     {
         return await _db.Medics
@@ -113,8 +133,8 @@ public class MedicService : IMedicService
         if (!IsValidSpecialty(normalizedSpecialty))
             throw new BadRequestException("La especialidad no es valida.");
 
-        if (await MedicExistsByDocumentAsync(normalizedDocument))
-            throw new ConflictException("Un medico con ese documento ya existe.");
+        if (await DocumentAlreadyExistsAsync(normalizedDocument))
+            throw new ConflictException("Ya existe un usuario con ese documento.");
 
         Medic newMedic = new()
         {
@@ -166,11 +186,8 @@ public class MedicService : IMedicService
         if (sameData)
             throw new BadRequestException("Ingrese datos diferentes a los actuales.");
 
-        bool documentInUse = await _db.Medics
-            .AnyAsync(m => m.Document == normalizedDocument && m.Id != id);
-
-        if (documentInUse)
-            throw new ConflictException("Un medico con ese documento ya existe.");
+        if (await DocumentAlreadyExistsAsync(normalizedDocument, id))
+            throw new ConflictException("Ya existe un usuario con ese documento.");
 
         medic.Name = normalizedName;
         medic.LastName = normalizedLastName;
@@ -184,7 +201,7 @@ public class MedicService : IMedicService
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
-            throw new ConflictException("Un medico con ese documento ya existe.");
+            throw new ConflictException("Ya existe un usuario con ese documento.");
         }
 
         return MapToResponseMedicDto(medic);

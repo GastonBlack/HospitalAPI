@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using HospitalAPI.Features.Admins.Models;
 using HospitalAPI.Features.Tickets.Models;
 using HospitalAPI.Features.Medics.Models;
 using HospitalAPI.Features.Patients.Models;
@@ -13,12 +14,47 @@ public class HospitalDbContext : DbContext
     }
 
     public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<Admin> Admins { get; set; }
     public DbSet<Medic> Medics { get; set; }
     public DbSet<Patient> Patients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        /// ///////////////////////////////
+        /// Admin Restrictions.
+        /// ///////////////////////////////
+        modelBuilder.Entity<Admin>(entity =>
+        {
+            entity.Property(a => a.Name)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(a => a.LastName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(a => a.Document)
+                .HasMaxLength(8)
+                .IsRequired();
+
+            entity.Property(a => a.PasswordHash)
+                .IsRequired();
+
+            entity.Property(a => a.Role)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(a => a.IsActive)
+                .HasDefaultValue(true)
+                .IsRequired();
+
+            entity.HasIndex(a => a.Document)
+                .IsUnique();
+
+            entity.Ignore(a => a.FullName);
+        });
 
         /// ///////////////////////////////
         /// Patient Restrictions.

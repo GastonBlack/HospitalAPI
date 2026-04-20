@@ -22,9 +22,13 @@ public class PatientService : IPatientService
     // //////////////////////////////////////////
     // Validations.
     // //////////////////////////////////////////
-    private async Task<bool> PatientExistsByDocumentAsync(string document)
+    private async Task<bool> DocumentAlreadyExistsAsync(string document, int? excludedPatientId = null)
     {
-        return await _db.Patients.AnyAsync(p => p.Document == document);
+        return await _db.Patients.AnyAsync(p =>
+                   p.Document == document &&
+                   (!excludedPatientId.HasValue || p.Id != excludedPatientId.Value)) ||
+               await _db.Admins.AnyAsync(a => a.Document == document) ||
+               await _db.Medics.AnyAsync(m => m.Document == document);
     }
 
     private static ResponsePatientDto MapToResponsePatientDto(Patient patient)
@@ -99,8 +103,8 @@ public class PatientService : IPatientService
         var normalizedLastName = dto.LastName.Trim().ToLower();
         var normalizedDocument = dto.Document.Trim();
 
-        if (await PatientExistsByDocumentAsync(normalizedDocument))
-            throw new ConflictException("Un usuario con ese documento ya existe.");
+        if (await DocumentAlreadyExistsAsync(normalizedDocument))
+            throw new ConflictException("Ya existe un usuario con ese documento.");
 
         Patient newPatient = new()
         {
@@ -147,11 +151,8 @@ public class PatientService : IPatientService
         if (sameData)
             throw new BadRequestException("Ingrese datos diferentes a los actuales.");
 
-        bool documentInUse = await _db.Patients
-            .AnyAsync(p => p.Document == normalizedDocument && p.Id != id);
-
-        if (documentInUse)
-            throw new ConflictException("Un usuario con ese documento ya existe.");
+        if (await DocumentAlreadyExistsAsync(normalizedDocument, id))
+            throw new ConflictException("Ya existe un usuario con ese documento.");
 
         patient.Name = normalizedName;
         patient.LastName = normalizedLastName;
@@ -164,7 +165,7 @@ public class PatientService : IPatientService
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
-            throw new ConflictException("Un usuario con ese documento ya existe.");
+            throw new ConflictException("Ya existe un usuario con ese documento.");
         }
 
         return MapToResponsePatientDto(patient);

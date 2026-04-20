@@ -24,6 +24,7 @@ var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<Jw
 builder.Services.AddOpenApi();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -68,6 +69,7 @@ builder.Services.AddScoped<AuthCookieFactory>();
 builder.Services.AddScoped<JwtTokenGenerator>();
 
 var app = builder.Build();
+await app.SeedAdminAsync();
 
 // //////////////////////////////////////////
 // Development only
