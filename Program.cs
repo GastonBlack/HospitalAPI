@@ -17,15 +17,38 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("La configuracion JWT es obligatoria.");
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
 
 // //////////////////////////////////////////
-// Framework services
+// Framework Services
 // //////////////////////////////////////////
 builder.Services.AddOpenApi();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSwaggerGen();
+
+// //////////////////////////////////////////
+// Options
+// //////////////////////////////////////////
 builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+
+// //////////////////////////////////////////
+// Cors
+// //////////////////////////////////////////
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+// //////////////////////////////////////////
+// Authentication
+// //////////////////////////////////////////
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -59,7 +82,7 @@ builder.Services.AddDbContext<HospitalDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // //////////////////////////////////////////
-// Application services
+// Application Services
 // //////////////////////////////////////////
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMedicService, MedicService>();
@@ -72,7 +95,7 @@ var app = builder.Build();
 await app.SeedAdminAsync();
 
 // //////////////////////////////////////////
-// Development only
+// Development Only
 // //////////////////////////////////////////
 if (app.Environment.IsDevelopment())
 {
@@ -82,10 +105,11 @@ if (app.Environment.IsDevelopment())
 }
 
 // //////////////////////////////////////////
-// Middleware
+// Request Pipeline
 // //////////////////////////////////////////
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
+app.UseCors(FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
