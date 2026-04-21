@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    [AllowAnonymous]
+    [Authorize]
     [HttpPost("logout")]
     public IActionResult Logout()
     {
