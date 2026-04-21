@@ -3,6 +3,7 @@ using HospitalAPI.Features.Patients.IServices;
 using HospitalAPI.Features.Patients.Models;
 using HospitalAPI.Infrastructure.Data;
 using HospitalAPI.Infrastructure.Exceptions;
+using HospitalAPI.Infrastructure.Formatting;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -99,8 +100,8 @@ public class PatientService : IPatientService
     {
         if (dto == null) throw new BadRequestException("Datos invalidos.");
 
-        var normalizedName = dto.Name.Trim().ToLower();
-        var normalizedLastName = dto.LastName.Trim().ToLower();
+        var normalizedName = NameFormatter.ToTitleCase(dto.Name);
+        var normalizedLastName = NameFormatter.ToTitleCase(dto.LastName);
         var normalizedDocument = dto.Document.Trim();
 
         if (await DocumentAlreadyExistsAsync(normalizedDocument))
@@ -136,8 +137,8 @@ public class PatientService : IPatientService
         Patient patient = await _db.Patients.FindAsync(id)
             ?? throw new NotFoundException("El usuario no existe.");
 
-        var normalizedName = dto.Name.Trim().ToLower();
-        var normalizedLastName = dto.LastName.Trim().ToLower();
+        var normalizedName = NameFormatter.ToTitleCase(dto.Name);
+        var normalizedLastName = NameFormatter.ToTitleCase(dto.LastName);
         var normalizedDocument = dto.Document.Trim();
 
         bool samePassword = BCrypt.Net.BCrypt.Verify(dto.Password, patient.PasswordHash);

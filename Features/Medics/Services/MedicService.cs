@@ -4,6 +4,7 @@ using HospitalAPI.Features.Medics.Models;
 using HospitalAPI.Features.Medics.Constants;
 using HospitalAPI.Infrastructure.Data;
 using HospitalAPI.Infrastructure.Exceptions;
+using HospitalAPI.Infrastructure.Formatting;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -125,8 +126,8 @@ public class MedicService : IMedicService
     {
         if (dto == null) throw new BadRequestException("Datos invalidos.");
 
-        var normalizedName = dto.Name.Trim().ToLower();
-        var normalizedLastName = dto.LastName.Trim().ToLower();
+        var normalizedName = NameFormatter.ToTitleCase(dto.Name);
+        var normalizedLastName = NameFormatter.ToTitleCase(dto.LastName);
         var normalizedDocument = dto.Document.Trim();
         var normalizedSpecialty = dto.Specialty.Trim();
 
@@ -166,8 +167,8 @@ public class MedicService : IMedicService
         Medic medic = await _db.Medics.FindAsync(id)
             ?? throw new NotFoundException("El medico no existe.");
 
-        var normalizedName = dto.Name.Trim().ToLower();
-        var normalizedLastName = dto.LastName.Trim().ToLower();
+        var normalizedName = NameFormatter.ToTitleCase(dto.Name);
+        var normalizedLastName = NameFormatter.ToTitleCase(dto.LastName);
         var normalizedDocument = dto.Document.Trim();
         var normalizedSpecialty = dto.Specialty.Trim();
 

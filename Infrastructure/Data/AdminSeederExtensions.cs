@@ -1,5 +1,6 @@
 using HospitalAPI.Features.Admins.Models;
 using HospitalAPI.Infrastructure.Auth;
+using HospitalAPI.Infrastructure.Formatting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -31,8 +32,8 @@ public static class AdminSeederExtensions
 
         Admin admin = new()
         {
-            Name = adminSeedOptions.Name.Trim().ToLower(),
-            LastName = adminSeedOptions.LastName.Trim().ToLower(),
+            Name = NameFormatter.ToTitleCase(adminSeedOptions.Name),
+            LastName = NameFormatter.ToTitleCase(adminSeedOptions.LastName),
             Document = adminSeedOptions.Document.Trim(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminSeedOptions.Password),
             Role = AuthRoles.Admin,
