@@ -12,10 +12,10 @@ public class Ticket
     public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
     public int MedicId { get; set; }
-    public required Medic Medic { get; set; }
+    public Medic Medic { get; set; } = null!;
 
     public int PatientId { get; set; }
-    public required Patient Patient { get; set; }
+    public Patient Patient { get; set; } = null!;
 
     public string Status { get; set; } = TicketStatuses.Pending;
 }

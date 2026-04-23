@@ -35,20 +35,28 @@ public class TicketService : ITicketService
 
     private async Task<bool> ValidateMedicAvailabilityAsync(int medicId, DateTime date, int? excludedTicketId = null)
     {
+        var startWindow = date.AddMinutes(-30);
+        var endWindow = date.AddMinutes(30);
+
         return !await _db.Tickets.AsNoTracking().AnyAsync(t =>
             (!excludedTicketId.HasValue || t.Id != excludedTicketId.Value) &&
             t.MedicId == medicId &&
             (t.Status == TicketStatuses.Pending || t.Status == TicketStatuses.Confirmed) &&
-            Math.Abs((t.AppointmentDate - date).TotalMinutes) < 30);
+            t.AppointmentDate > startWindow &&
+            t.AppointmentDate < endWindow);
     }
 
     private async Task<bool> ValidatePatientAvailabilityAsync(int patientId, DateTime date, int? excludedTicketId = null)
     {
+        var startWindow = date.AddMinutes(-30);
+        var endWindow = date.AddMinutes(30);
+
         return !await _db.Tickets.AsNoTracking().AnyAsync(t =>
             (!excludedTicketId.HasValue || t.Id != excludedTicketId.Value) &&
             t.PatientId == patientId &&
             (t.Status == TicketStatuses.Pending || t.Status == TicketStatuses.Confirmed) &&
-            Math.Abs((t.AppointmentDate - date).TotalMinutes) < 30);
+            t.AppointmentDate > startWindow &&
+            t.AppointmentDate < endWindow);
     }
 
     private static bool ValidateTicketStatus(string status)
@@ -219,9 +227,7 @@ public class TicketService : ITicketService
             Ticket newTicket = new()
             {
                 PatientId = patientId,
-                Patient = patientTicket,
                 MedicId = dto.MedicId,
-                Medic = medicTicket,
                 AppointmentDate = dto.AppointmentDate,
                 Status = TicketStatuses.Pending
             };
